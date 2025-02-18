@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game with Virtual Arrow Keys</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .control-button {
+            width: 50px;
+            height: 50px;
+            margin: 0 10px;
+            font-size: 24px;
+            text-align: center;
+            line-height: 50px;
+            border: 1px solid black;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="game"></canvas>
+    <div class="controls">
+        <div id="upButton" class="control-button">&uarr;</div>
+    </div>
+    <div class="controls">
+        <div id="leftButton" class="control-button">&larr;</div>
+        <div id="downButton" class="control-button">&darr;</div>
+        <div id="rightButton" class="control-button">&rarr;</div>
+    </div>
+    <script>
+        const canvas = document.getElementById("game");
+        const context = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth / 2;
+        canvas.height = window.innerHeight / 2;
+
+        let gameover = false;
+        let x = canvas.width / 2;
+        let y = canvas.height / 2;
+        let dx = 0;
+        let dy = 0;
+
+        const state = {
+            "ArrowRight": false,
+            "ArrowLeft": false,
+            "ArrowUp": false,
+            "ArrowDown": false
+        };
+
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+        document.getElementById("upButton").addEventListener("mousedown", () => keyDownHandler({ key: "ArrowUp" }));
+        document.getElementById("upButton").addEventListener("mouseup", () => keyUpHandler({ key: "ArrowUp" }));
+        document.getElementById("downButton").addEventListener("mousedown", () => keyDownHandler({ key: "ArrowDown" }));
+        document.getElementById("downButton").addEventListener("mouseup", () => keyUpHandler({ key: "ArrowDown" }));
+        document.getElementById("leftButton").addEventListener("mousedown", () => keyDownHandler({ key: "ArrowLeft" }));
+        document.getElementById("leftButton").addEventListener("mouseup", () => keyUpHandler({ key: "ArrowLeft" }));
+        document.getElementById("rightButton").addEventListener("mousedown", () => keyDownHandler({ key: "ArrowRight" }));
+        document.getElementById("rightButton").addEventListener("mouseup", () => keyUpHandler({ key: "ArrowRight" }));
+
+        function determineDirection() {
+            const { ArrowRight, ArrowLeft, ArrowUp, ArrowDown } = state;
+            if (ArrowRight && ArrowUp) {
+                return { dx: .25, dy: -.25 };
+            }
+            if (ArrowRight && ArrowDown) {
+                return { dx: .25, dy: .25 };
+            }
+            if (ArrowLeft && ArrowUp) {
+                return { dx: -.25, dy: -.25 };
+            }
+            if (ArrowLeft && ArrowDown) {
+                return { dx: -.25, dy: .25 };
+            }
+            if (ArrowLeft) {
+                return { dx: -.25, dy: 0 };
+            }
+            if (ArrowRight) {
+                return { dx: .25, dy: 0 };
+            }
+            if (ArrowUp) {
+                return { dx: 0, dy: -.25 };
+            }
+            if (ArrowDown) {
+                return { dx: 0, dy: .25 };
+            }
+            return { dx: 0, dy: 0 };
+        }
+
+        function keyDownHandler({ key }) {
+            state[key] = true;
+        }
+
+        function keyUpHandler({ key }) {
+            state[key] = false;
+        }
+
+        function draw() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.beginPath();
+            context.arc(x, y, 10, 0, Math.PI * 2, false);
+            context.fillStyle = "red";
+            context.fill();
+            context.closePath();
+        }
+
+        function logic() {
+            const direction = determineDirection();
+            dx += direction.dx;
+            dy += direction.dy;
+            x += dx;
+            y += dy;
+            if (dx > 0) dx -= 0.02;
+            if (dx < 0) dx += 0.02;
+            if (dy > 0) dy -= 0.02;
+            if (dy < 0) dy += 0.02;
+        }
+
+        function play() {
+            draw();
+            logic();
+        }
+
+        setInterval(play, 50);
+    </script>
+</body>
+</html>
